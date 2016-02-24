@@ -9,5 +9,5 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^chart$', "Main.views"),
     url(r'^getyear$', "Main.views"),
-    url(r'^updateinformation$', "Main.views"),
+    url(r'^updateinformation$', "Main.views.update_information"),
 ]
