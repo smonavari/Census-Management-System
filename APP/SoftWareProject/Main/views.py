@@ -4,6 +4,7 @@ from django.template import RequestContext
 import openpyxl
 from openpyxl.writer.write_only import WriteOnlyCell
 
+
 def update_information(request):
 
     if request.method=='POST':
@@ -52,4 +53,61 @@ def update_information_popularity_on_year(ws, name_country, year, num):
             break
 
         i += 1
+
     return 'this country not exist -> country = '+name_country
+
+
+def show_list_popularity(request):
+    if request.method == 'POST' and request.POST.get('year', None):
+
+        year = request.POST.get('year')
+
+        wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
+        m = get_list_popularity(wb['ESTIMATES'], year)
+
+        wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
+        w = get_list_popularity(wb['ESTIMATES'], year)
+
+        if m and w :
+            list_pop = []
+            for x in w.keys():
+                list_pop.append([x, w[x], m[x], w[x]+m[x]])
+
+            list_pop.sort(key=lambda y: y[3])
+
+            return render_to_response('showListOfPopularity.html', {'year': year, 'list_of_popularity': list_pop}, context_instance=RequestContext(request))
+
+        return render_to_response('showListOfPopularity.html', {'year': year}, context_instance=RequestContext(request))
+
+    return render_to_response('showListOfPopularity.html', {}, context_instance=RequestContext(request))
+
+
+def get_list_popularity(ws, year):
+    name_city_col = 3
+    name_city_row = 29
+    year_start_col = 6
+    year_row = 17
+    list_pop = {}
+
+    i = 0
+    while True:
+        if ws.cell(row=year_row, column=year_start_col+i).value == year:
+            j = 0
+            while True:
+                if not ws.cell(row=name_city_row+j, column=name_city_col).value:
+                    break
+
+                else:
+                    list_pop[ws.cell(row=name_city_row+j, column=name_city_col).value] = \
+                        int(ws.cell(row=name_city_row+j, column=year_start_col+i).value)
+
+                j += 1
+
+            return list_pop
+
+        elif not ws.cell(row=year_row, column=year_start_col+i).value:
+            break
+
+        i += 1
+
+    return None
