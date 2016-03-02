@@ -154,25 +154,29 @@ def show_list_prop(request):
         year = request.POST.get('year')
         prop = request.POST.get('prop')
 
-        wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
-        m = get_list_popularity(wb[prop], year)
+        try:
+            wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
+            m = get_list_popularity(wb[prop], year)
 
-        wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
-        w = get_list_popularity(wb[prop], year)
+            wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
+            w = get_list_popularity(wb[prop], year)
 
-        if m and w:
-            list_pop = []
-            for x in w.keys():
-                list_pop.append([x, w[x], m[x], w[x] + m[x]])
+            if m and w:
+                list_pop = []
+                for x in w.keys():
+                    list_pop.append([x, w[x], m[x], w[x] + m[x]])
 
-            list_pop.sort(key=lambda y: y[3])
+                list_pop.sort(key=lambda y: y[3])
 
-            return render_to_response('showListOfPopularityWithProp.html',
-                                      {'year': year, 'prop': prop, 'list_of_popularity': list_pop},
+                return render_to_response('showListOfPopularityWithProp.html',
+                                          {'year': year, 'prop': prop, 'list_of_popularity': list_pop},
+                                          context_instance=RequestContext(request))
+
+            return render_to_response('showListOfPopularityWithProp.html', {'year': year},
                                       context_instance=RequestContext(request))
-
-        return render_to_response('showListOfPopularityWithProp.html', {'year': year},
-                                  context_instance=RequestContext(request))
+        except KeyError:
+            print('bad prop!')
+            return render_to_response('showListOfPopularityWithProp.html', {'error': 'bad property :|'}, context_instance=RequestContext(request))
 
     return render_to_response('showListOfPopularityWithProp.html', {}, context_instance=RequestContext(request))
 
