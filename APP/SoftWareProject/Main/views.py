@@ -213,3 +213,59 @@ def countryshowchart(request, countryname):
     return render_to_response('year_chart.html', {"url": draw_chart(countryname)},
                               context_instance=RequestContext(request))
 
+
+def show_negative_list(request):
+    if request.method == 'POST' and request.POST.get('year', None) and request.POST.get('method', None):
+        year = request.POST.get('year')
+        method = request.POST.get('method')
+
+        wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F02_POPULATION_GROWTH_RATE.xlsx')
+        m = get_list_growth(wb[method], year)
+
+        print(year)
+
+        if m:
+            list_pop = []
+            for x in m.keys():
+                if m[x] < 0:
+                    list_pop.append([x, m[x]])
+
+            return render_to_response('showNegative.html',
+                                      {'year': year, 'method': method, 'list_of_popularity': list_pop},
+                                      context_instance=RequestContext(request))
+
+        return render_to_response('showNegative.html', {'year': year, 'method': method},
+                                  context_instance=RequestContext(request))
+
+    return render_to_response('showNegative.html', {}, context_instance=RequestContext(request))
+
+
+def get_list_growth(ws, year):
+    name_city_col = 3
+    name_city_row = 29
+    year_start_col = 6
+    year_row = 17
+    list_pop = {}
+
+    i = 0
+    while True:
+        if ws.cell(row=year_row, column=year_start_col + i).value == year:
+            j = 0
+            while True:
+                if not ws.cell(row=name_city_row + j, column=name_city_col).value:
+                    break
+
+                else:
+                    list_pop[ws.cell(row=name_city_row + j, column=name_city_col).value] = ws.cell(row=name_city_row + j, column=year_start_col + i).value
+
+                j += 1
+
+            return list_pop
+
+        elif not ws.cell(row=year_row, column=year_start_col + i).value:
+            break
+
+        i += 1
+
+    return None
+
