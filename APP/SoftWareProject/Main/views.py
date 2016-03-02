@@ -1,6 +1,9 @@
-from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+
 from openpyxl import load_workbook
+import openpyxl
+from openpyxl.writer.write_only import WriteOnlyCell
 
 
 def get_year_country_from_work_book(wb, year, country):
@@ -9,10 +12,10 @@ def get_year_country_from_work_book(wb, year, country):
     # i = 0
     # for row in ws.rows:
     # if row[0].value == 'Index':
-    #         for cell in row:
-    #             if cell.value == year:
-    #                 year_column = i
-    #             i += 1
+    # for cell in row:
+    # if cell.value == year:
+    # year_column = i
+    # i += 1
     count = -1
     for row in ws.rows:
         if row[2].value == country:
@@ -25,5 +28,63 @@ def get_year_country_from_work_book(wb, year, country):
 def get_year_country(request, year, country):
     wb = load_workbook(filename='../../Data/WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx', read_only=True)
     maleCount = get_year_country_from_work_book(wb, year, country)
+    if maleCount == -1:
+        maleCount = 'not found!'
     wb = load_workbook(filename='../../Data/WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx', read_only=True)
     femaleCount = get_year_country_from_work_book(wb, year, country)
+    if femaleCount == -1:
+        femaleCount = 'not found!'
+    return render_to_response('get_year_country.html',
+                              {'male_count': maleCount,
+                               'female_count': femaleCount},
+                              context_instance=RequestContext(request))
+
+
+def update_information(request):
+    if request.method == 'POST':
+        if request.POST.get('country', None) and request.POST.get('year', None) and \
+                request.POST.get('men', None) and request.POST.get('women', None):
+            country = request.POST.get('country', None)
+            year = request.POST.get('year', None)
+            men = request.POST.get('men', None)
+            women = request.POST.get('women', None)
+
+            wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
+            message_action = update_information_popularity_on_year(wb['ESTIMATES'], country, year, men) + '-> Men \n'
+            wb.save('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
+
+            wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
+            message_action += update_information_popularity_on_year(wb['ESTIMATES'], country, year, women) + '-> Women'
+            wb.save('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
+            return render_to_response('update_information.html', {'message_action': message_action},
+                                      context_instance=RequestContext(request))
+
+    return render_to_response('update_information.html', {}, context_instance=RequestContext(request))
+
+
+def update_information_popularity_on_year(ws, name_country, year, num):
+    name_city_col = 3
+    year_start_col = 6
+    year_row = 17
+
+    i = 18
+    while True:
+        if ws.cell(row=i, column=name_city_col).value == name_country:
+            j = 0
+            while True:
+                if ws.cell(row=year_row, column=year_start_col + j).value == year:
+                    ws.cell(row=i, column=year_start_col + j).value = num
+                    return 'update data'
+
+                elif not ws.cell(row=i, column=year_start_col + j).value:
+                    break
+
+                j += 1
+
+            return 'this year not exist -> year = ' + year
+
+        elif not ws.cell(row=i, column=name_city_col).value:
+            break
+
+        i += 1
+    return 'this country not exist -> country = ' + name_country
