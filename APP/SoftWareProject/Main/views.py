@@ -1,9 +1,10 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, render
 from django.template import RequestContext
 
 from openpyxl import load_workbook
 import openpyxl
 from Main.models import ProtectedCountry
+from Main.Logic.SearchCountryYear import draw_chart
 
 
 def get_year_country_from_work_book(wb, year, country):
@@ -163,4 +164,7 @@ def get_list_popularity(ws, year):
 
     return None
 
+def countryshowchart(request,countryname):
+    #return render('year_chart.html',{"url":draw_chart(countryname)})
+    return  render_to_response('year_chart.html',{"url":draw_chart(countryname)},context_instance=RequestContext(request))
 
