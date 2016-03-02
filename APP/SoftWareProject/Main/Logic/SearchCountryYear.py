@@ -92,4 +92,4 @@ def draw_chart(name='Iran'):
     return plot_url
 
 
-draw_chart()
+#draw_chart()
