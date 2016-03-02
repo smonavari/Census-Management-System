@@ -188,3 +188,4 @@ def draw_estimation(name,kind):
     fig = go.Figure(data=data, layout=layout)
     plot_url = py.plot(fig, filename='marker-h-bar')
     return plot_url
+
