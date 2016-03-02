@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>list Of Popularity</title>
+</head>
+<body>
+
+    <div>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div>
+                please enter year for show list of popularity:
+                <input type="number" name="year" value="{{ year }}">
+            </div>
+            <button> submit </button>
+        </form>
+    </div>
+
+    <div>
+        Result :
+        <div>
+            {% if list_of_popularity %}
+                <h2>
+                    number of people [ {{ year }} ]
+                </h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <td>
+                                Country
+                            </td>
+
+                            <td>
+                                Popularity Women
+                            </td>
+
+                            <td>
+                                Popularity Men
+                            </td>
+                            <td>
+                                Popularity
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for l in list_of_popularity %}
+                            <tr>
+                                <td>
+                                    {{ l.0 }}
+                                </td>
+
+                                <td>
+                                    {{ l.1 }}
+                                </td>
+
+                                <td>
+                                    {{ l.2 }}
+                                </td>
+
+                                <td>
+                                    {{ l.3 }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+
+            {% else %}
+                No Data :)
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>

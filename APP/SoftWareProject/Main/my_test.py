@@ -18,14 +18,10 @@ def update_information_popularity_on_year(ws, name_country):
                     print(ws.cell(row=i, column=col).value)
                     print("==============================")
 
-        elif not ws.cell(row=i, column=name_city_col).value:
-            break
-
-        i += 1
-    ws.protection.enable()
-
+    return None
 
 wb = openpyxl.load_workbook('..\..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
 print(update_information_popularity_on_year(wb['ESTIMATES'], 'China'))
 wb.save(filename = 'simple.xlsx')
+
 

@@ -12,6 +12,10 @@ urlpatterns = [
     url(r'^updateinformation$', "Main.views.update_information"),
 #    url(r'^popularitylist$', "Main.views.show_list_popularity"),
     url(r'^protectedcountry$', "Main.views.update_protected_cell_of_country"),
-
+    url(r'^chart$', "Main.views"),
+    url(r'^getyear$', "Main.views"),
+    url(r'^getyearc/(\d+)/(\w+)$', "Main.views.get_year_country"),
+    url(r'^updateinformation$', "Main.views.update_information"),
+    url(r'^popularitylist', "Main.views.show_list_popularity"),
 
 ]
