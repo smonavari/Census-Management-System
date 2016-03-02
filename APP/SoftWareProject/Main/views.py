@@ -3,6 +3,7 @@ from django.template import RequestContext
 
 from openpyxl import load_workbook
 import openpyxl
+from Main.models import ProtectedCountry
 from Main.Logic.SearchCountryYear import draw_chart
 
 
@@ -49,16 +50,21 @@ def update_information(request):
             men = request.POST.get('men', None)
             women = request.POST.get('women', None)
 
-            wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
-            message_action = update_information_popularity_on_year(wb['ESTIMATES'], country, year, men) + '-> Men \n'
-            wb.save('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
+            if ProtectedCountry.objects.filter(name_country=country).count() == 0:
+                wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
+                message_action = update_information_popularity_on_year(wb['ESTIMATES'], country, year, men) + '-> Men \n'
+                wb.save('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
 
-            wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
-            message_action += update_information_popularity_on_year(wb['ESTIMATES'], country, year, women) + '-> Women'
-            wb.save('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
-            return render_to_response('update_information.html', {'message_action': message_action},
-                                      context_instance=RequestContext(request))
+                wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
+                message_action += update_information_popularity_on_year(wb['ESTIMATES'], country, year, women) + '-> Women'
+                wb.save('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
+                return render_to_response('update_information.html', {'message_action': message_action},
+                                          context_instance=RequestContext(request))
 
+            else:
+                message_action = country + "'s data is lock! you can't update information"
+                return render_to_response('update_information.html', {'message_action': message_action},
+                                          context_instance=RequestContext(request))
     return render_to_response('update_information.html', {}, context_instance=RequestContext(request))
 
 
@@ -87,22 +93,39 @@ def update_information_popularity_on_year(ws, name_country, year, num):
             break
 
         i += 1
-
     return 'this country not exist -> country = '+name_country
 
 
-def show_list_popularity(request):
+def update_protected_cell_of_country(request):
+
+    if request.method == 'POST':
+        message = 'Please enter name of country '
+
+        if request.POST.get('country', None):
+            country = request.POST.get('country', None)
+            if ProtectedCountry.objects.all().filter(name_country=country).count() > 0:
+                message = 'the country exist for action!'
+            else:
+                p = ProtectedCountry(name_country=country)
+                p.save()
+                message = 'add country!'
+        return render_to_response('protectedCountry.html', {'message': message}, context_instance=RequestContext(request))
+
+    return render_to_response('protectedCountry.html', {}, context_instance=RequestContext(request))
+
+
+def show_list_population(request):
     if request.method == 'POST' and request.POST.get('year', None):
 
         year = request.POST.get('year')
 
         wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
-        m = get_list_popularity(wb['ESTIMATES'], year)
+        m = get_list_population(wb['ESTIMATES'], year)
 
         wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
-        w = get_list_popularity(wb['ESTIMATES'], year)
+        w = get_list_population(wb['ESTIMATES'], year)
 
-        if m and w :
+        if m and w:
             list_pop = []
             for x in w.keys():
                 list_pop.append([x, w[x], m[x], w[x]+m[x]])
@@ -116,7 +139,7 @@ def show_list_popularity(request):
     return render_to_response('showListOfPopularity.html', {}, context_instance=RequestContext(request))
 
 
-def get_list_popularity(ws, year):
+def get_list_population(ws, year):
     name_city_col = 3
     name_city_row = 29
     year_start_col = 6
@@ -150,3 +173,4 @@ def get_list_popularity(ws, year):
 def countryshowchart(request, countryname):
     print(countryname)
     return  render_to_response('year_chart.html',{"url":draw_chart(countryname)},context_instance=RequestContext(request))
+

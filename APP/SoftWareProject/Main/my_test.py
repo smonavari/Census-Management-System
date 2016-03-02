@@ -2,46 +2,26 @@ __author__ = 'sepideh'
 
 
 import openpyxl
+from openpyxl.styles import Protection, Style
 
-
-def update_information_popularity_on_year(ws, year):
+def update_information_popularity_on_year(ws, name_country):
     name_city_col = 3
-    name_city_row = 29
-    year_start_col = 6
-    year_row = 17
-    list_pop = []
-
-    i = 0
+    i = 18
     while True:
-        if ws.cell(row=year_row, column=year_start_col+i).value == year:
-            j = 0
-            while True:
-                if not ws.cell(row=name_city_row+j, column=name_city_col).value:
-                    break
-
-                else:
-                    list_pop.append([ws.cell(row=name_city_row+j, column=name_city_col).value,
-                                    int(ws.cell(row=name_city_row+j, column=year_start_col+i).value)])
-
-                j += 1
-
-            list_pop
-            return list_pop
-
-        elif not ws.cell(row=year_row, column=year_start_col+i).value:
-            break
-
-        i += 1
+        if ws.cell(row=i, column=name_city_col).value == name_country:
+            for col in range(len(ws.columns)+1):
+                if col > name_city_col:
+                    ws.cell(row=i, column=col).style = Style(protection=Protection(locked=False))
+                    print(ws.cell(row=i, column=col).style.protection)
+                    print(ws.cell(row=i, column=col).value)
+                    ws.cell(row=i, column=col).value = 10
+                    print(ws.cell(row=i, column=col).value)
+                    print("==============================")
 
     return None
 
-
-
-
-
 wb = openpyxl.load_workbook('..\..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
-ws = wb['ESTIMATES']
-print(update_information_popularity_on_year(wb['ESTIMATES'],'kkkk',10,1))
-
+print(update_information_popularity_on_year(wb['ESTIMATES'], 'China'))
+wb.save(filename = 'simple.xlsx')
 
 
