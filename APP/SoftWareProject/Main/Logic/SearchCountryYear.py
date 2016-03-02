@@ -51,7 +51,7 @@ def get_data_female(name):
     return numbers
 
 
-def draw_chart(name='Iran'):
+def draw_chart(name):
     country_fe=get_data_female(name)
     print(country_fe)
     country_ma=get_data_male(name)
@@ -90,6 +90,3 @@ def draw_chart(name='Iran'):
     fig = go.Figure(data=data, layout=layout)
     plot_url = py.plot(fig, filename='marker-h-bar')
     return plot_url
-
-
-draw_chart()

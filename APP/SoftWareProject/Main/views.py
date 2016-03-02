@@ -147,6 +147,6 @@ def get_list_popularity(ws, year):
     return None
 
 
-def countryshowchart(request,countryname):
-    #return render('year_chart.html',{"url":draw_chart(countryname)})
+def countryshowchart(request, countryname):
+    print(countryname)
     return  render_to_response('year_chart.html',{"url":draw_chart(countryname)},context_instance=RequestContext(request))
