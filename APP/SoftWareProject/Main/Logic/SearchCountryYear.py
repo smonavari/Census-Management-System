@@ -28,6 +28,64 @@ def get_data_male(name):
                     numbers+=[cell.value]
     return numbers
 
+
+def get_data_male_estimation(name, kind):
+    wb = load_workbook(filename="../../Data/WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx")
+    sheetnames=wb.get_sheet_names()
+    sheetname=""
+    for names in sheetnames:
+        if kind in names:
+            sheetname=names
+
+    ws = wb[sheetname]
+
+    numbers=list()
+    cnt = -1
+    found=False
+    for row in ws.rows:
+        found=False
+        cnt=-1
+        for cell in row:
+            if cell.value:
+                cnt += 1
+                if name.lower() in str(cell.value).lower():
+                    found=True
+                    print(cell.value)
+                    cnt = 0
+                if cnt >= 86 or cnt <= 1:
+                    continue
+                if found:
+                    numbers+=[cell.value]
+    return numbers
+
+def get_data_female_estimation(name, kind):
+    wb = load_workbook(filename="../../Data/WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx")
+    sheetnames=wb.get_sheet_names()
+    sheetname=""
+    for names in sheetnames:
+        if kind in names:
+            sheetname=names
+
+    ws = wb[sheetname]
+    numbers=list()
+    cnt = -1
+    found=False
+    for row in ws.rows:
+        found=False
+        cnt=-1
+        for cell in row:
+            if cell.value:
+                cnt += 1
+                if name.lower() in str(cell.value).lower():
+                    found=True
+                    print(cell.value)
+                    cnt = 0
+                if cnt >= 86 or cnt <= 1:
+                    continue
+                if found:
+                    numbers+=[cell.value]
+    return numbers
+
 def get_data_female(name):
     wb = load_workbook(filename="../../Data/WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx")
     ws = wb['ESTIMATES']
@@ -72,6 +130,46 @@ def draw_chart(name):
     )
     trace2 = go.Bar(
     y=list(range(1950,2016)),
+    x=country_ma,
+    name='male',
+    orientation = 'h',
+    marker = dict(
+        color = 'rgba(255, 153, 51, 0.6)',
+        line = dict(
+            color = 'rgba(255, 153, 51, 1.0)',
+            width = 1,
+        )
+    )
+    )
+    data = [trace1, trace2]
+    layout = go.Layout(
+        barmode='stack'
+    )
+    fig = go.Figure(data=data, layout=layout)
+    plot_url = py.plot(fig, filename='marker-h-bar')
+    return plot_url
+
+def draw_estimation(name,kind):
+    country_fe=get_data_female_estimation(name,kind)
+    print(country_fe)
+    country_ma=get_data_male_estimation(name,kind)
+    print(country_ma)
+
+    trace1 = go.Bar(
+        y=list(range(2016, 2101)),
+        x=country_fe,
+        name='female',
+        orientation = 'h',
+        marker = dict(
+            color = 'rgba(55, 128, 191, 0.6)',
+            line = dict(
+                color = 'rgba(55, 128, 191, 1.0)',
+                width = 1,
+            )
+        )
+    )
+    trace2 = go.Bar(
+    y=list(range(2016,2101)),
     x=country_ma,
     name='male',
     orientation = 'h',

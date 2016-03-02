@@ -4,6 +4,7 @@ from django.template import RequestContext
 from openpyxl import load_workbook
 import openpyxl
 from Main.Logic.SearchCountryYear import draw_chart
+from Main.Logic.SearchCountryYear import draw_estimation
 
 
 def get_year_country_from_work_book(wb, year, country):
@@ -150,3 +151,7 @@ def get_list_popularity(ws, year):
 def countryshowchart(request, countryname):
     print(countryname)
     return  render_to_response('year_chart.html',{"url":draw_chart(countryname)},context_instance=RequestContext(request))
+
+def estimatechart(request, countryname,kind):
+    print(countryname)
+    return  render_to_response('year_chart.html',{"url":draw_estimation(countryname,kind)},context_instance=RequestContext(request))

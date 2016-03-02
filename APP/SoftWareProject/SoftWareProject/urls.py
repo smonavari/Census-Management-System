@@ -12,4 +12,6 @@ urlpatterns = [
     url(r'^getyearc/(\d+)/(\w+)$', "Main.views.get_year_country"),
     url(r'^updateinformation$', "Main.views.update_information"),
     url(r'^popularitylist', "Main.views.show_list_popularity"),
+    url(r'^estimatechart/(\w+)/(\w+)$', "Main.views.estimatechart"),
+
 ]
