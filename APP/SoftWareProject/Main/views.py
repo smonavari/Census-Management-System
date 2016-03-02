@@ -43,23 +43,22 @@ def get_year_country(request, year, country):
 
 def update_information(request):
     if request.method == 'POST':
-        if request.POST.get('country', None) and request.POST.get('year', None) and \
-                request.POST.get('men', None) and request.POST.get('women', None):
+        if request.POST.get('country', None) and request.POST.get('year', None):
             country = request.POST.get('country', None)
             year = request.POST.get('year', None)
             men = request.POST.get('men', None)
             women = request.POST.get('women', None)
 
             if ProtectedCountry.objects.filter(name_country=country).count() == 0:
-                wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
-                message_action = update_information_popularity_on_year(wb['ESTIMATES'], country, year,
-                                                                       men) + '-> Men \n'
-                wb.save('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
-
-                wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
-                message_action += update_information_popularity_on_year(wb['ESTIMATES'], country, year,
-                                                                        women) + '-> Women'
-                wb.save('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
+                message_action = 'Please enter number for edit Men Or Women'
+                if men:
+                    wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
+                    message_action = update_information_popularity_on_year(wb['ESTIMATES'], country, year, men) + '-> Men \n'
+                    wb.save('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
+                if women:
+                    wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
+                    message_action += update_information_popularity_on_year(wb['ESTIMATES'], country, year, women) + '-> Women'
+                    wb.save('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
                 return render_to_response('update_information.html', {'message_action': message_action},
                                           context_instance=RequestContext(request))
 
