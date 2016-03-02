@@ -7,10 +7,9 @@ urlpatterns = [
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^chart$', "Main.views"),
+    url(r'^chart/(\w+)$', "Main.views.countryshowchart"),
     url(r'^getyear$', "Main.views"),
     url(r'^getyearc/(\d+)/(\w+)$', "Main.views.get_year_country"),
     url(r'^updateinformation$', "Main.views.update_information"),
     url(r'^popularitylist', "Main.views.show_list_popularity"),
-
 ]
