@@ -87,7 +87,7 @@ def update_information_popularity_on_year(ws, name_country, year, num):
 
         i += 1
 
-    return 'this country not exist -> country = '+name_country
+    return 'this country not exist -> country = ' + name_country
 
 
 def show_list_popularity(request):
@@ -101,14 +101,15 @@ def show_list_popularity(request):
         wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
         w = get_list_popularity(wb['ESTIMATES'], year)
 
-        if m and w :
+        if m and w:
             list_pop = []
             for x in w.keys():
-                list_pop.append([x, w[x], m[x], w[x]+m[x]])
+                list_pop.append([x, w[x], m[x], w[x] + m[x]])
 
             list_pop.sort(key=lambda y: y[3])
 
-            return render_to_response('showListOfPopularity.html', {'year': year, 'list_of_popularity': list_pop}, context_instance=RequestContext(request))
+            return render_to_response('showListOfPopularity.html', {'year': year, 'list_of_popularity': list_pop},
+                                      context_instance=RequestContext(request))
 
         return render_to_response('showListOfPopularity.html', {'year': year}, context_instance=RequestContext(request))
 
@@ -124,24 +125,55 @@ def get_list_popularity(ws, year):
 
     i = 0
     while True:
-        if ws.cell(row=year_row, column=year_start_col+i).value == year:
+        if ws.cell(row=year_row, column=year_start_col + i).value == year:
             j = 0
             while True:
-                if not ws.cell(row=name_city_row+j, column=name_city_col).value:
+                if not ws.cell(row=name_city_row + j, column=name_city_col).value:
                     break
 
                 else:
-                    list_pop[ws.cell(row=name_city_row+j, column=name_city_col).value] = \
-                        int(ws.cell(row=name_city_row+j, column=year_start_col+i).value)
+                    print(ws.cell(row=name_city_row + j, column=year_start_col + i).value)
+                    list_pop[ws.cell(row=name_city_row + j, column=name_city_col).value] = \
+                        int(ws.cell(row=name_city_row + j, column=year_start_col + i).value)
 
                 j += 1
 
             return list_pop
 
-        elif not ws.cell(row=year_row, column=year_start_col+i).value:
+        elif not ws.cell(row=year_row, column=year_start_col + i).value:
             break
 
         i += 1
 
     return None
+
+
+def show_list_prop(request):
+    if request.method == 'POST' and request.POST.get('year', None) and request.POST.get('prop', None):
+
+        year = request.POST.get('year')
+        prop = request.POST.get('prop')
+
+        wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
+        m = get_list_popularity(wb[prop], year)
+
+        wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
+        w = get_list_popularity(wb[prop], year)
+
+        if m and w:
+            list_pop = []
+            for x in w.keys():
+                list_pop.append([x, w[x], m[x], w[x] + m[x]])
+
+            list_pop.sort(key=lambda y: y[3])
+
+            return render_to_response('showListOfPopularityWithProp.html',
+                                      {'year': year, 'prop': prop, 'list_of_popularity': list_pop},
+                                      context_instance=RequestContext(request))
+
+        return render_to_response('showListOfPopularityWithProp.html', {'year': year},
+                                  context_instance=RequestContext(request))
+
+    return render_to_response('showListOfPopularityWithProp.html', {}, context_instance=RequestContext(request))
+
 
