@@ -1,3 +1,4 @@
 from django.contrib import admin
+from Main.models import ProtectedCountry
 
-# Register your models here.
+admin.register(ProtectedCountry)

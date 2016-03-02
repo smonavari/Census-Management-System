@@ -2,8 +2,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 import openpyxl
-from openpyxl.styles import Protection, Style
-
+from Main.models import ProtectedCountry
 
 def update_information(request):
 
@@ -22,24 +21,6 @@ def update_information(request):
 
             wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
             message_action += update_information_popularity_on_year(wb['ESTIMATES'], country, year, women)+'-> Women'
-            wb.save('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
-            return render_to_response('update_information.html', {'message_action':message_action}, context_instance=RequestContext(request))
-
-    return render_to_response('update_information.html', {}, context_instance=RequestContext(request))
-
-
-def update_protected_cell(request):
-    if request.method == 'POST':
-        if request.POST.get('country', None):
-
-            country = request.POST.get('country', None)
-
-            wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
-            message_action = update_protected_cell_of_country(wb['ESTIMATES'], country)+'-> Men \n'
-            wb.save('..\..\Data\WPP2015_POP_F01_2_TOTAL_POPULATION_MALE.xlsx')
-
-            wb = openpyxl.load_workbook('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
-            message_action += update_protected_cell_of_country(wb['ESTIMATES'], country)+'-> Women'
             wb.save('..\..\Data\WPP2015_POP_F01_3_TOTAL_POPULATION_FEMALE.xlsx')
             return render_to_response('update_information.html', {'message_action':message_action}, context_instance=RequestContext(request))
 
@@ -74,25 +55,23 @@ def update_information_popularity_on_year(ws, name_country, year, num):
     return 'this country not exist -> country = '+name_country
 
 
-def update_protected_cell_of_country(wb,country):
+def update_protected_cell_of_country(request):
+
+    if request.method == 'POST':
+        result = 'Please enter name of country '
+
+        if request.POST.get('country', None):
+            country = request.POST.get('country', None)
+            print(ProtectedCountry.objects.count())
+            if ProtectedCountry.objects.all() and ProtectedCountry.objects.all().filter(name_country=country):
+                result = 'the country exist for action!'
+            else:
+                p = ProtectedCountry(name_country=country)
+                p.save()
+                result = 'add country!'
+        return render_to_response('protectedCountry.html', {'result', result}, context_instance=RequestContext(request))
+
+    return render_to_response('protectedCountry.html', {}, context_instance=RequestContext(request))
 
 
-    for col in range(wb.colmns()):
-        print (col)
 
-    ws = wb.active
-
-    ws.protection.sheet = True
-
-    cell1 = ws['a1']
-
-    cell1.value = "Can you change me?"
-
-    cell2 = ws['a2']
-
-    cell2.value = "what about me?"
-
-    cell2.style = Style(protection = Protection(locked=False))
-
-    wb.save(filename = 'simple.xlsx')
-    return
