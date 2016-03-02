@@ -7,37 +7,72 @@
 <body>
 
     <div>
-        <form>
-
+        <form action="" method="post">
+            {% csrf_token %}
+            <div>
+                please enter year for show list of popularity:
+                <input type="number" name="year" value="{{ year }}">
+            </div>
+            <button> submit </button>
         </form>
     </div>
 
     <div>
-        {% if list_of_popularity %}
-            <h2>
-                number of people
-            </h2>
+        Result :
+        <div>
+            {% if list_of_popularity %}
+                <h2>
+                    number of people [ {{ year }} ]
+                </h2>
 
-            <table>
-                <thead>
-                    <tr>
-                        <td>
-                            Country
-                        </td>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>
+                                Country
+                            </td>
 
-                        <td>
-                            Popularity
-                        </td>
-                    </tr>
-                </thead>
+                            <td>
+                                Popularity Women
+                            </td>
 
-            </table>
+                            <td>
+                                Popularity Men
+                            </td>
+                            <td>
+                                Popularity
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for l in list_of_popularity %}
+                            <tr>
+                                <td>
+                                    {{ l.0 }}
+                                </td>
 
-        {% else %}
-            No Data :)
-        {% endif %}
+                                <td>
+                                    {{ l.1 }}
+                                </td>
+
+                                <td>
+                                    {{ l.2 }}
+                                </td>
+
+                                <td>
+                                    {{ l.3 }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+
+            {% else %}
+                No Data :)
+            {% endif %}
+        </div>
     </div>
-
 
 </body>
 </html>
