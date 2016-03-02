@@ -58,18 +58,17 @@ def update_information_popularity_on_year(ws, name_country, year, num):
 def update_protected_cell_of_country(request):
 
     if request.method == 'POST':
-        result = 'Please enter name of country '
+        message = 'Please enter name of country '
 
         if request.POST.get('country', None):
             country = request.POST.get('country', None)
-            print(ProtectedCountry.objects.count())
-            if ProtectedCountry.objects.all() and ProtectedCountry.objects.all().filter(name_country=country):
-                result = 'the country exist for action!'
+            if ProtectedCountry.objects.all().filter(name_country=country).count() > 0:
+                message = 'the country exist for action!'
             else:
                 p = ProtectedCountry(name_country=country)
                 p.save()
-                result = 'add country!'
-        return render_to_response('protectedCountry.html', {'result', result}, context_instance=RequestContext(request))
+                message = 'add country!'
+        return render_to_response('protectedCountry.html', {'message': message}, context_instance=RequestContext(request))
 
     return render_to_response('protectedCountry.html', {}, context_instance=RequestContext(request))
 
